@@ -3,8 +3,9 @@ package cuie.nightbehaviour.mapcontrol;
 import java.util.List;
 import java.util.Locale;
 import com.sothawo.mapjfx.*;
-
+import com.sothawo.mapjfx.event.MarkerEvent;
 import javafx.animation.AnimationTimer;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -62,10 +63,13 @@ public class MapControl extends Region {
 
     // Todo: diese Parts durch alle notwendigen Parts der gewünschten CustomControl ersetzen
     private MapView mapView;
+    private Marker skyscraperMarker;
+    private Marker editingMarker;
 
     // Todo: ersetzen durch alle notwendigen Properties der CustomControl
     private final DoubleProperty longitude = new SimpleDoubleProperty();
     private final DoubleProperty latitude = new SimpleDoubleProperty();
+    private final BooleanProperty isEditing = new SimpleBooleanProperty();
 
     // Todo: ergänzen mit allen  CSS stylable properties
     private static final CssMetaData<MapControl, Color> BASE_COLOR_META_DATA = FACTORY.createColorCssMetaData("-base-color", s -> s.baseColor);
@@ -116,6 +120,14 @@ public class MapControl extends Region {
                 .projection(Projection.WEB_MERCATOR)
                 .showZoomControls(false)
                 .build());
+
+        skyscraperMarker = new Marker(
+                getClass().getResource("/skyscraper.png"),0,-100)
+                .setVisible(true);
+
+        editingMarker = new Marker(
+                getClass().getResource("/editedSkyscraper.png"),0,-100)
+                .setVisible(false);
     }
 
     private void initializeDrawingPane() {
@@ -135,30 +147,41 @@ public class MapControl extends Region {
 
     private void setupEventHandlers() {
         //ToDo: bei Bedarf ergänzen
+
+        // After map is initialized
+        mapView.initializedProperty().addListener((observableValue, oldValue, newValue) -> {
+            mapView.addMarker(skyscraperMarker);
+            mapView.addMarker(editingMarker);
+        });
+
+        mapView.addEventHandler(MarkerEvent.MARKER_CLICKED, event -> {
+            isEditing.setValue(!isEditing.get());
+        });
     }
 
     private void setupValueChangeListeners() {
-        //ToDo: bei Bedarf ergänzen
-        latitude.addListener(e -> {
+        ChangeListener<Number> onPositionChanged = (observableValue, number, t1) -> {
             Coordinate newCoordinate = new Coordinate(latitude.get(), longitude.get());
+            skyscraperMarker.setPosition(newCoordinate);
             mapView.setCenter(newCoordinate);
-        });
+        };
 
-        longitude.addListener(e -> {
-            Coordinate newCoordinate = new Coordinate(latitude.get(), longitude.get());
-            mapView.setCenter(newCoordinate);
-        });
+        latitude.addListener(onPositionChanged);
+        longitude.addListener(onPositionChanged);
 
         mapView.centerProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.getLatitude() != latitude.get()) latitude.setValue(newValue.getLatitude());
-            if (newValue.getLongitude() != longitude.get()) longitude.setValue(newValue.getLongitude());
+            if (isEditing.get()) {
+                if (newValue.getLatitude() != latitude.get()) latitude.setValue(newValue.getLatitude());
+                if (newValue.getLongitude() != longitude.get()) longitude.setValue(newValue.getLongitude());
+            }
         });
     }
 
 
     private void setupBindings() {
-        //ToDo dieses Binding ersetzen
-
+        editingMarker.positionProperty().bind(skyscraperMarker.positionProperty());
+        editingMarker.visibleProperty().bind(isEditing);
+//        skyscraperMarker.visibleProperty().bind(Bindings.not(isEditing));
     }
 
     private void performPeriodicTask(){
