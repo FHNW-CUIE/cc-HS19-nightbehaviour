@@ -24,9 +24,8 @@ compileJava {
 }
 
 dependencies {
+    compile 'com.sothawo:mapjfx:1.27.1'
 	implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-
 	testImplementation('org.junit.jupiter:junit-jupiter:5.5.2')
 }
 

@@ -2,6 +2,7 @@ package cuie.nightbehaviour.mapcontrol;
 
 import java.util.List;
 import java.util.Locale;
+import com.sothawo.mapjfx.*;
 
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.BooleanProperty;
@@ -10,6 +11,8 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.css.CssMetaData;
 import javafx.css.SimpleStyleableObjectProperty;
 import javafx.css.Styleable;
@@ -47,8 +50,8 @@ public class MapControl extends Region {
 
     private static final Locale CH = new Locale("de", "CH");
 
-    private static final double ARTBOARD_WIDTH  = 100;  // Todo: Breite der "Zeichnung" aus dem Grafik-Tool übernehmen
-    private static final double ARTBOARD_HEIGHT = 100;  // Todo: Anpassen an die Breite der Zeichnung
+    private static final double ARTBOARD_WIDTH  = 400;  // Todo: Breite der "Zeichnung" aus dem Grafik-Tool übernehmen
+    private static final double ARTBOARD_HEIGHT = 300;  // Todo: Anpassen an die Breite der Zeichnung
 
     private static final double ASPECT_RATIO = ARTBOARD_WIDTH / ARTBOARD_HEIGHT;
 
@@ -58,11 +61,11 @@ public class MapControl extends Region {
     private static final double MAXIMUM_WIDTH = 800;    // Todo: Anpassen
 
     // Todo: diese Parts durch alle notwendigen Parts der gewünschten CustomControl ersetzen
-    private Circle backgroundCircle;
-    private Text   display;
+    private MapView mapView;
 
     // Todo: ersetzen durch alle notwendigen Properties der CustomControl
-    private final DoubleProperty value = new SimpleDoubleProperty();
+    private final DoubleProperty longitude = new SimpleDoubleProperty();
+    private final DoubleProperty latitude = new SimpleDoubleProperty();
 
     // Todo: ergänzen mit allen  CSS stylable properties
     private static final CssMetaData<MapControl, Color> BASE_COLOR_META_DATA = FACTORY.createColorCssMetaData("-base-color", s -> s.baseColor);
@@ -75,25 +78,6 @@ public class MapControl extends Region {
         }
     };
 
-    // Todo: Loeschen falls keine getaktete Animation benoetigt wird
-    private final BooleanProperty          blinking = new SimpleBooleanProperty(false);
-    private final ObjectProperty<Duration> pulse    = new SimpleObjectProperty<>(Duration.seconds(1.0));
-
-    private final AnimationTimer timer = new AnimationTimer() {
-        private long lastTimerCall;
-
-        @Override
-        public void handle(long now) {
-            if (now > lastTimerCall + (pulse.get().toMillis() * 1_000_000L)) {
-                performPeriodicTask();
-                lastTimerCall = now;
-            }
-        }
-    };
-
-    // Todo: alle Animationen und Timelines deklarieren
-
-
     // needed for resizing
     private Pane drawingPane;
 
@@ -101,7 +85,6 @@ public class MapControl extends Region {
         initializeSelf();
         initializeParts();
         initializeDrawingPane();
-        initializeAnimations();
         layoutParts();
         setupEventHandlers();
         setupValueChangeListeners();
@@ -116,17 +99,23 @@ public class MapControl extends Region {
         String stylesheet = getClass().getResource("style.css").toExternalForm();
         getStylesheets().add(stylesheet);
 
-        getStyleClass().add("simple-control");  // Todo: an den Namen der Klasse (des CustomControls) anpassen
+        getStyleClass().add("map-control");  // Todo: an den Namen der Klasse (des CustomControls) anpassen
     }
 
     private void initializeParts() {
         //ToDo: alle deklarierten Parts initialisieren
-        double center = ARTBOARD_WIDTH * 0.5;
+        mapView = new MapView();
+        mapView.setMapType(MapType.OSM);
+        mapView.setZoom(14);
+        mapView.setCenter(new Coordinate(0.0,0.0));
+        mapView.setMaxSize(ARTBOARD_WIDTH, ARTBOARD_HEIGHT);
+        mapView.setMinSize(ARTBOARD_WIDTH, ARTBOARD_HEIGHT);
+        mapView.setPrefSize(ARTBOARD_WIDTH, ARTBOARD_HEIGHT);
 
-        backgroundCircle = new Circle(center, center, center);
-        backgroundCircle.getStyleClass().add("background-circle");
-
-        display = createCenteredText("display");
+        mapView.initialize(Configuration.builder()
+                .projection(Projection.WEB_MERCATOR)
+                .showZoomControls(false)
+                .build());
     }
 
     private void initializeDrawingPane() {
@@ -137,13 +126,9 @@ public class MapControl extends Region {
         drawingPane.setPrefSize(ARTBOARD_WIDTH, ARTBOARD_HEIGHT);
     }
 
-    private void initializeAnimations(){
-        //ToDo: alle deklarierten Animationen initialisieren
-    }
-
     private void layoutParts() {
         // ToDo: alle Parts zur drawingPane hinzufügen
-        drawingPane.getChildren().addAll(backgroundCircle, display);
+        drawingPane.getChildren().addAll(mapView);
 
         getChildren().add(drawingPane);
     }
@@ -154,30 +139,31 @@ public class MapControl extends Region {
 
     private void setupValueChangeListeners() {
         //ToDo: bei Bedarf ergänzen
+        latitude.addListener(e -> {
+            Coordinate newCoordinate = new Coordinate(latitude.get(), longitude.get());
+            mapView.setCenter(newCoordinate);
+        });
 
-        // fuer die getaktete Animation
-        blinking.addListener((observable, oldValue, newValue) -> {
-            startClockedAnimation(newValue);
+        longitude.addListener(e -> {
+            Coordinate newCoordinate = new Coordinate(latitude.get(), longitude.get());
+            mapView.setCenter(newCoordinate);
+        });
+
+        mapView.centerProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.getLatitude() != latitude.get()) latitude.setValue(newValue.getLatitude());
+            if (newValue.getLongitude() != longitude.get()) longitude.setValue(newValue.getLongitude());
         });
     }
 
 
     private void setupBindings() {
         //ToDo dieses Binding ersetzen
-        display.textProperty().bind(valueProperty().asString(CH, "%.2f"));
+
     }
 
     private void performPeriodicTask(){
         //todo: ergaenzen mit dem was bei der getakteten Animation gemacht werden muss
         // in der Regel: den Wert einer der Status-Properties aendern
-    }
-
-    private void startClockedAnimation(boolean start) {
-        if (start) {
-            timer.start();
-        } else {
-            timer.stop();
-        }
     }
 
     //resize by scaling
@@ -395,17 +381,20 @@ public class MapControl extends Region {
 
     // alle getter und setter  (generiert via "Code -> Generate... -> Getter and Setter)
 
-    // ToDo: ersetzen durch die Getter und Setter Ihres CustomControls
-    public double getValue() {
-        return value.get();
+    public double getLongitude() {
+        return longitude.get();
     }
 
-    public DoubleProperty valueProperty() {
-        return value;
+    public DoubleProperty longitudeProperty() {
+        return longitude;
     }
 
-    public void setValue(double value) {
-        this.value.set(value);
+    public double getLatitude() {
+        return latitude.get();
+    }
+
+    public DoubleProperty latitudeProperty() {
+        return latitude;
     }
 
     public Color getBaseColor() {
@@ -418,29 +407,5 @@ public class MapControl extends Region {
 
     public void setBaseColor(Color baseColor) {
         this.baseColor.set(baseColor);
-    }
-
-    public boolean isBlinking() {
-        return blinking.get();
-    }
-
-    public BooleanProperty blinkingProperty() {
-        return blinking;
-    }
-
-    public void setBlinking(boolean blinking) {
-        this.blinking.set(blinking);
-    }
-
-    public Duration getPulse() {
-        return pulse.get();
-    }
-
-    public ObjectProperty<Duration> pulseProperty() {
-        return pulse;
-    }
-
-    public void setPulse(Duration pulse) {
-        this.pulse.set(pulse);
     }
 }
