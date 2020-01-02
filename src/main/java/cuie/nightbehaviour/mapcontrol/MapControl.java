@@ -1,4 +1,4 @@
-package cuie.nightbehaviour.template_simplecontrol;
+package cuie.nightbehaviour.mapcontrol;
 
 import java.util.List;
 import java.util.Locale;
@@ -36,9 +36,9 @@ import javafx.util.Duration;
  * @author Dieter Holz
  */
 //Todo: Umbenennen.
-public class SimpleControl extends Region {
+public class MapControl extends Region {
     // needed for StyleableProperties
-    private static final StyleablePropertyFactory<SimpleControl> FACTORY = new StyleablePropertyFactory<>(Region.getClassCssMetaData());
+    private static final StyleablePropertyFactory<MapControl> FACTORY = new StyleablePropertyFactory<>(Region.getClassCssMetaData());
 
     @Override
     public List<CssMetaData<? extends Styleable, ?>> getCssMetaData() {
@@ -65,7 +65,7 @@ public class SimpleControl extends Region {
     private final DoubleProperty value = new SimpleDoubleProperty();
 
     // Todo: ergänzen mit allen  CSS stylable properties
-    private static final CssMetaData<SimpleControl, Color> BASE_COLOR_META_DATA = FACTORY.createColorCssMetaData("-base-color", s -> s.baseColor);
+    private static final CssMetaData<MapControl, Color> BASE_COLOR_META_DATA = FACTORY.createColorCssMetaData("-base-color", s -> s.baseColor);
 
     private final StyleableObjectProperty<Color> baseColor = new SimpleStyleableObjectProperty<Color>(BASE_COLOR_META_DATA) {
         @Override
@@ -97,7 +97,7 @@ public class SimpleControl extends Region {
     // needed for resizing
     private Pane drawingPane;
 
-    public SimpleControl() {
+    public MapControl() {
         initializeSelf();
         initializeParts();
         initializeDrawingPane();

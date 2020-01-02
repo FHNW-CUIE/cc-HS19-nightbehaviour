@@ -1,4 +1,4 @@
-package cuie.nightbehaviour.template_simplecontrol.demo;
+package cuie.nightbehaviour.mapcontrol.demo;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
