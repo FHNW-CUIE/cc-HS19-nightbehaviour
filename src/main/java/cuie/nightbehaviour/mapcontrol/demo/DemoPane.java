@@ -21,6 +21,7 @@ public class DemoPane extends BorderPane {
     // all controls
     private TextField longitude;
     private TextField latitude;
+    private CheckBox isEditingCheckbox;
 
     public DemoPane(PresentationModel pm) {
         this.pm = pm;
@@ -39,11 +40,13 @@ public class DemoPane extends BorderPane {
 
         longitude = new TextField();
         latitude = new TextField();
+        isEditingCheckbox = new CheckBox();
+        isEditingCheckbox.setText("Edit Skyscraper location");
     }
 
     private void layoutControls() {
         VBox controlPane = new VBox(new Label("SimpleControl Properties"),
-                                    longitude, latitude);
+                                    longitude, latitude, isEditingCheckbox);
         controlPane.setPadding(new Insets(0, 50, 0, 50));
         controlPane.setSpacing(10);
 
@@ -55,7 +58,7 @@ public class DemoPane extends BorderPane {
         StringConverter<Number> converter = new NumberStringConverter();
         Bindings.bindBidirectional(longitude.textProperty(), cc.longitudeProperty(), converter);
         Bindings.bindBidirectional(latitude.textProperty(), cc.latitudeProperty(), converter);
-        cc.baseColorProperty().bindBidirectional(pm.baseColorProperty());
+        isEditingCheckbox.selectedProperty().bindBidirectional(cc.isEditingProperty());
     }
 
 }
