@@ -1,4 +1,4 @@
-package cuie.project.template_simplecontrol.demo;
+package cuie.nightbehaviour.template_simplecontrol.demo;
 
 import javafx.application.Application;
 import javafx.scene.Scene;

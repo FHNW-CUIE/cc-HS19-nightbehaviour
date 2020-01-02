@@ -1,4 +1,4 @@
-package cuie.project.template_businesscontrol;
+package cuie.nightbehaviour.template_businesscontrol;
 
 import java.util.Arrays;
 
