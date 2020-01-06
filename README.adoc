@@ -31,6 +31,7 @@ myLatitudeProperty.bindBidirectional(mapControl.latitudeProperty());
 myEditingProperty.bindBidirectional(mapControl.isEditingProperty());
 ----
 
+Bei Fragen bin ich erreichbar unter hannalisa.franz@students.fhnw.ch!
 
 === Integriert in die OOP2-Projekte von
 
