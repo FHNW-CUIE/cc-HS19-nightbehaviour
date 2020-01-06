@@ -2,7 +2,35 @@
 
 === Bearbeitet von
 
-* Vorname, Nachname
+* Hanna Lisa Franz
+
+=== Anleitung
+
+==== Installation
+1. Klasse `MapControl` dem Projekt hinzufügen
+
+2. Die Bilder (`skyscraper.png`, `editedSkyscraper.png`) aus dem resources-Ordner in den resources-Ordner vom Projekt kopieren
+
+3. Abhängigkeiten in build.gradle hinzufügen:
+
+    dependencies {
+        compile 'com.sothawo:mapjfx:1.27.1'
+        compile 'ch.qos.logback:logback-classic:1.3.0-alpha4'
+        // ...
+    }
+
+4. Gradle-Projekt aktualisieren
+
+==== Nutzung
+
+----
+MapControl mapControl = new MapControl()
+
+myLongitudeProperty.bindBidirectional(mapControl.longitudeProperty());
+myLatitudeProperty.bindBidirectional(mapControl.latitudeProperty());
+myEditingProperty.bindBidirectional(mapControl.isEditingProperty());
+----
+
 
 === Integriert in die OOP2-Projekte von
 

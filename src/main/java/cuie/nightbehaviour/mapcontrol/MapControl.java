@@ -27,12 +27,14 @@ import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextBoundsType;
 
 /**
- * ToDo: CustomControl kurz beschreiben
+ * Mein Custom Control ist eine Karte auf welcher die Koordinaten des
+ * ausgewählten Wolkenkratzer visualisiert werden kann.
+ * Der Marker kann durch anklicken und bewegen der Karte oder durch Anpassung der Koordinaten verschoben werden.
+ * Für die Karte verwende ich den JavaFX8 Komponent von "https://www.sothawo.com/projects/mapjfx/".
  *
- * ToDo: Autoren ergänzen / ersetzen
- * @author Dieter Holz
+ *
+ * Hanna Lisa Franz, 3iCa
  */
-//Todo: Umbenennen.
 public class MapControl extends Region {
     private static final Locale CH = new Locale("de", "CH");
 
