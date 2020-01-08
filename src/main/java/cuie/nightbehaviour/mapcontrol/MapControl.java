@@ -28,10 +28,9 @@ import javafx.scene.text.TextBoundsType;
 
 /**
  * Mein Custom Control ist eine Karte auf welcher die Koordinaten des
- * ausgewählten Wolkenkratzer visualisiert werden kann.
+ * ausgewählten Wolkenkratzers visualisiert werden können.
  * Der Marker kann durch anklicken und bewegen der Karte oder durch Anpassung der Koordinaten verschoben werden.
  * Für die Karte verwende ich den JavaFX8 Komponent von "https://www.sothawo.com/projects/mapjfx/".
- *
  *
  * Hanna Lisa Franz, 3iCa
  */
@@ -46,7 +45,7 @@ public class MapControl extends Region {
     private static final double MINIMUM_WIDTH  = 100;
     private static final double MINIMUM_HEIGHT = MINIMUM_WIDTH / ASPECT_RATIO;
 
-    private static final double MAXIMUM_WIDTH = 2000;
+    private static final double MAXIMUM_WIDTH = 2000; //Maximum pane width
 
     private MapView mapView;
     private Marker skyscraperMarker;
@@ -69,6 +68,9 @@ public class MapControl extends Region {
         setupBindings();
     }
 
+    /**
+     * Get styling data
+     */
     private void initializeSelf() {
         // load stylesheets
         String fonts = getClass().getResource("/fonts/fonts.css").toExternalForm();
@@ -83,7 +85,7 @@ public class MapControl extends Region {
     private void initializeParts() {
         mapView = new MapView();
         mapView.setMapType(MapType.OSM);
-        mapView.setZoom(14);
+        mapView.setZoom(12);
         mapView.setCenter(new Coordinate(0.0,0.0));
         mapView.setMaxSize(ARTBOARD_WIDTH, ARTBOARD_HEIGHT);
         mapView.setMinSize(ARTBOARD_WIDTH, ARTBOARD_HEIGHT);
@@ -111,11 +113,21 @@ public class MapControl extends Region {
         drawingPane.setPrefSize(ARTBOARD_WIDTH, ARTBOARD_HEIGHT);
     }
 
+    /**
+     * Add all parts to drawingPane
+     */
+
     private void layoutParts() {
         drawingPane.getChildren().addAll(mapView);
 
         getChildren().add(drawingPane);
     }
+
+    /**
+     * Setup EventHandler for clicks on editable checkbox and building
+     */
+
+
 
     private void setupEventHandlers() {
         // After map is initialized
@@ -127,7 +139,9 @@ public class MapControl extends Region {
         // When marker is clicked
         mapView.addEventHandler(MarkerEvent.MARKER_CLICKED, event -> isEditing.setValue(!isEditing.get()));
     }
-
+    /**
+     * Set up change listener for map position
+     */
     private void setupValueChangeListeners() {
         // When position changes
         ChangeListener<Number> onPositionChanged = (observableValue, number, t1) -> {
@@ -148,6 +162,9 @@ public class MapControl extends Region {
         });
     }
 
+    /**
+     * Bind position and visibility properties to editing marker.
+     */
     private void setupBindings() {
         editingMarker.positionProperty().bind(skyscraperMarker.positionProperty());
         editingMarker.visibleProperty().bind(isEditing);

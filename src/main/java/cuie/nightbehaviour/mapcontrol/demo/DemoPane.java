@@ -29,8 +29,8 @@ public class DemoPane extends BorderPane {
         layoutControls();
         setupBindings();
 
-        longitude.textProperty().setValue("8,212");
-        latitude.textProperty().setValue("47,479");
+        longitude.textProperty().setValue("-73,985428");
+        latitude.textProperty().setValue("40,748817");
     }
 
     private void initializeControls() {
